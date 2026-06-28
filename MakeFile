@@ -1,1 +1,5 @@
-All: cc -o ./bin/contact .src/main.c && ./bin/contact
+All: 
+	cc -o ./bin/contact ./src/main.c && ./bin/contact
+
+init:
+	cc -o ./bin/contact ./src/main.c && ./bin/contact init
