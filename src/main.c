@@ -13,7 +13,7 @@ Save contacts to a file
 Load contacts when the program starts
 */
 
-int add_contact(int run);
+int add_contact(int *run);
 void show_all(int *run);
 void display_actions();
 void display_contact_actions();
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     
     int running = 0;
     int *run = &running;
-    char user_input[2];
+    char user_input[10];
 
     while (running == 0) {
       display_actions();
@@ -42,8 +42,9 @@ int main(int argc, char *argv[]) {
           show_all(run);
           break;
         case '2':
-          add_contact(*run);
+          add_contact(run);
           break;
+
         case '3':
           search_contact(*run);
           break;
@@ -61,11 +62,25 @@ void show_all(int *run) {
   printf("showing all Contacts\n");
 }
 
-int add_contact(int run) {
-
-  run = 1;
+int add_contact(int *run) {
   printf("add new contact\n");
+  char user_input[30];
+  int contact_running = 0;
+  while (contact_running == 0) {
+    printf("Enter Name: ");
+    fgets(user_input, sizeof(user_input), stdin);
 
+    user_input[strcspn(user_input, "\n")] = '\0';
+
+    if (strcmp(user_input, "done") == 0) {
+      contact_running = 1;
+      *run = 1;
+    } else {
+      printf("You entered: %s\n", user_input);
+    }
+  }
+  
+  // *run = 1;
   return 0;
 }
 
@@ -78,12 +93,12 @@ int search_contact(int run){
 }
 
 void display_actions() {
-  printf("\033[H\033[J");
-  printf("\n\n");
+  // printf("\033[H\033[J");
+  // printf("\n\n");
   printf("1) Show All Contacts\n");
   printf("2) Add New Contact\n");
   printf("3) Search Contact\n");
-  printf("\n");
+  // printf("\n");
 }
 
 
