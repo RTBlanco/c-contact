@@ -15,6 +15,8 @@ Load contacts when the program starts
 
 int add_contact();
 void display_contacts();
+void display_actions();
+void display_contact_actions();
 int search_contact();
 int destroy_contact();
 int init_setup();
@@ -24,12 +26,29 @@ int main(int argc, char *argv[]) {
   
   if (argc > 1 && strcmp(argv[1], "init") == 0) {
     init_setup();
+    return 0;
   } else {
     printf("No argument\n");
   } 
 
+  int running = 0;
+  char user_input[2];
+
+  while (running == 0) {
+    display_actions();
+    fgets(user_input, sizeof(user_input), stdin);
+  }
   
   return 0;
+}
+
+void display_actions() {
+  printf("\033[H\033[J");
+  printf("\n\n");
+  printf("1) Show All Contacts\n");
+  printf("2) Add New Contact\n");
+  printf("3) Search Contact\n");
+  printf("\n");
 }
 
 int init_setup() {
