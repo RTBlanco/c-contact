@@ -63,24 +63,43 @@ void show_all(int *run) {
 }
 
 int add_contact(int *run) {
-  printf("add new contact\n");
   char user_input[30];
   int contact_running = 0;
+
+  char *first_name, *last_name, *phone_number;
+
+  first_name = malloc(10 * sizeof(*first_name));
+  last_name = malloc(10 * sizeof(*last_name));
+  phone_number = malloc(10 * sizeof(*phone_number));
+
+
+  printf("add new contact\n");
   while (contact_running == 0) {
-    printf("Enter Name: ");
-    fgets(user_input, sizeof(user_input), stdin);
 
-    user_input[strcspn(user_input, "\n")] = '\0';
+    printf("Enter first name: ");
+    fgets(first_name, sizeof(first_name), stdin);
+    first_name[strcspn(first_name, "\n")] = '\0';
 
-    if (strcmp(user_input, "done") == 0) {
+    printf("\nEnter Last name: "); 
+    fgets(last_name, sizeof(last_name), stdin);
+    last_name[strcspn(last_name, "\n")] = '\0';
+
+    printf("\nEnter Phone Number: "); 
+    fgets(phone_number, sizeof(phone_number), stdin);
+    phone_number[strcspn(phone_number, "\n")] = '\0';
+
+
+    if (strcmp(first_name, "done") == 0) {
       contact_running = 1;
       *run = 1;
-    } else {
-      printf("You entered: %s\n", user_input);
+    } else if (first_name[0] != '\0' && last_name[0] != '\0' && phone_number[0] != '\0') {
+      contact_running = 1;
+      printf("You entered: %s | %s | %s \n", first_name, last_name, phone_number);
+      
+      *run = 1;
     }
   }
   
-  // *run = 1;
   return 0;
 }
 
