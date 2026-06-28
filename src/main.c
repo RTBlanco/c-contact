@@ -42,5 +42,10 @@ int init_setup() {
   } else {
     printf("folder exists already\n");
   }
+
+  FILE *f = fopen("./contact_data/contacts.json", "w");
+  if (f == NULL ) {return 1;}
+  fclose(f);
+
   return 0;
 }
