@@ -22,6 +22,8 @@ int destroy_contact();
 int init_setup();
 int read_data();
 int update_data(const char *contact);
+int read_data_callback(char mode[], int (*callback)(char *buffer, int line));
+int display_all_contact(char *buffer, int line);
 
 
 int main(int argc, char *argv[]) {
@@ -63,7 +65,8 @@ int show_all(int *run) {
   printf("showing all Contacts\n");
   printf("First Name | Last Name | Phone number \n");
   printf("=======================================");
-  read_data();
+  // read_data();
+  read_data_callback("r", display_all_contact);
   *run = 1;
   return 0;
 }
@@ -144,6 +147,7 @@ int search_contact(int *run){
           if (strcmp(token, search) == 0){
             printf("Found Contact\n");
             printf("%s\n", contact);
+            // return line;
           }
         }
 
@@ -161,6 +165,7 @@ int search_contact(int *run){
   fclose(f);
 
   *run = 1;
+  // return 1;
   return 0;
 }
 
@@ -236,6 +241,48 @@ int read_data(){
     printf("\n");
   
 
+  }
+  
+  fclose(f);
+
+  return 0;
+}
+
+int display_all_contact(char *buffer, int line) {
+  char *token = strtok(buffer, ",");
+  
+  while (token != NULL) {
+    if (line == 0){
+      // printf("%s\n", token);
+      token = strtok(NULL, ",");
+      continue;
+    } else {
+
+      printf("%s | ", token);
+      token = strtok(NULL, ",");
+
+    }
+  }
+
+
+  printf("\n");
+  return 0;
+}
+
+int read_data_callback(char mode[], int (*callback)(char *buffer, int line)) {
+  char buffer[2000];
+  FILE *f = fopen("./contact_data/contacts.csv", mode);
+  if (f == NULL ) {return 1;}
+  
+  int line = 0;
+
+  while(fgets(buffer, sizeof(buffer), f)) {
+    buffer[strcspn(buffer, "\n")] = '\0';
+    
+    
+    callback(buffer, line);
+  
+    line ++;
   }
   
   fclose(f);
