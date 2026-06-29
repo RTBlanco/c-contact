@@ -148,6 +148,16 @@ int search_contact(int *run){
             printf("Found Contact\n");
             printf("%s\n", contact);
             // return line;
+            char edit_answer[5];
+
+            printf("Edit Contact ? (Y|N):");
+            fgets(edit_answer, sizeof(edit_answer), stdin);
+            edit_answer[strcspn(edit_answer, "\n")] = '\0';
+
+            // finish 
+            if (strcmp(edit_answer, "y") == 0) {
+              printf("Your going to edit %s", contact);
+            }
           }
         }
 
