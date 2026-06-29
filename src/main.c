@@ -20,6 +20,7 @@ void display_contact_actions();
 int search_contact(int run);
 int destroy_contact();
 int init_setup();
+int update_data(const char *contact);
 
 
 int main(int argc, char *argv[]) {
@@ -63,14 +64,11 @@ void show_all(int *run) {
 }
 
 int add_contact(int *run) {
-  char user_input[30];
   int contact_running = 0;
 
-  char *first_name, *last_name, *phone_number;
-
-  first_name = malloc(10 * sizeof(*first_name));
-  last_name = malloc(10 * sizeof(*last_name));
-  phone_number = malloc(10 * sizeof(*phone_number));
+  char first_name[50];
+  char last_name[50];
+  char phone_number[50];
 
 
   printf("add new contact\n");
@@ -80,11 +78,11 @@ int add_contact(int *run) {
     fgets(first_name, sizeof(first_name), stdin);
     first_name[strcspn(first_name, "\n")] = '\0';
 
-    printf("\nEnter Last name: "); 
+    printf("Enter Last name: "); 
     fgets(last_name, sizeof(last_name), stdin);
     last_name[strcspn(last_name, "\n")] = '\0';
 
-    printf("\nEnter Phone Number: "); 
+    printf("Enter Phone Number: "); 
     fgets(phone_number, sizeof(phone_number), stdin);
     phone_number[strcspn(phone_number, "\n")] = '\0';
 
@@ -94,8 +92,13 @@ int add_contact(int *run) {
       *run = 1;
     } else if (first_name[0] != '\0' && last_name[0] != '\0' && phone_number[0] != '\0') {
       contact_running = 1;
+
       printf("You entered: %s | %s | %s \n", first_name, last_name, phone_number);
-      
+
+      char contact[(sizeof(first_name) + sizeof(last_name) + sizeof(phone_number))];
+      snprintf(contact, sizeof(contact), "%s,%s,%s", first_name, last_name, phone_number);
+      update_data(contact);
+
       *run = 1;
     }
   }
@@ -135,7 +138,19 @@ int init_setup() {
 
   FILE *f = fopen("./contact_data/contacts.csv", "w");
   if (f == NULL ) {return 1;}
+  fprintf(f, "%s", "first_name,last_name,phone_number");
+
   fclose(f);
 
+  return 0;
+}
+
+int update_data(const char *contact) {
+  FILE *f = fopen("./contact_data/contacts.csv", "a");
+  if (f == NULL ) {return 1;}
+
+  fprintf(f, "\n%s", contact);
+
+  fclose(f);
   return 0;
 }
