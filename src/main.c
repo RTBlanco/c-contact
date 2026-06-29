@@ -14,7 +14,7 @@ Load contacts when the program starts
 */
 
 int add_contact(int *run);
-void show_all(int *run);
+int show_all(int *run);
 void display_actions();
 void display_contact_actions();
 int search_contact(int run);
@@ -58,9 +58,40 @@ int main(int argc, char *argv[]) {
   }
 }
 
-void show_all(int *run) {
-  *run = 1;
+int show_all(int *run) {
   printf("showing all Contacts\n");
+  
+  char buffer[2000];
+  int header = 0;
+  FILE *f = fopen("./contact_data/contacts.csv", "r");
+  if (f == NULL ) {return 1;}
+  
+  while(fgets(buffer, sizeof(buffer), f)) {
+    buffer[strcspn(buffer, "\n")] = '\0';
+    
+    char *token = strtok(buffer, ",");
+    
+    while (token != NULL) {
+      printf("%s | ", token);
+      
+      if (strcmp(token, "first_name") == 0){
+        header = 1;
+      }
+      token = strtok(NULL, ",");
+    }
+
+    printf("\n");
+    if (header) {
+      printf("=======================================\n");
+      header = 0;
+    }
+
+  }
+  
+  fclose(f);
+
+  *run = 1;
+  return 0;
 }
 
 int add_contact(int *run) {
@@ -116,7 +147,7 @@ int search_contact(int run){
 
 void display_actions() {
   // printf("\033[H\033[J");
-  // printf("\n\n");
+  printf("\n");
   printf("1) Show All Contacts\n");
   printf("2) Add New Contact\n");
   printf("3) Search Contact\n");
@@ -154,3 +185,4 @@ int update_data(const char *contact) {
   fclose(f);
   return 0;
 }
+
