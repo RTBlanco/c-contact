@@ -14,13 +14,10 @@ Load contacts when the program starts
 */
 
 int add_contact(int *run);
-// int show_all(int *run);
 void display_actions();
 void display_contact_actions();
-int search_contact(int *run);
 int destroy_contact();
 int init_setup();
-int read_data();
 int update_data(const char *contact);
 int read_data_callback(char mode[], int (*callback)(), void *passed_args);
 int display_all_contact(void *passed_args);
@@ -61,11 +58,9 @@ int main(int argc, char *argv[]) {
       switch (user_input[0]) {
         case '1':
 
-          // CBArguments args;
           printf("showing all Contacts\n");
           printf("First Name | Last Name | Phone number \n");
           printf("=======================================");
-          // read_data();
           read_data_callback("r", display_all_contact, &args);
           *run = 1;
           return EXIT_SUCCESS;
@@ -76,12 +71,7 @@ int main(int argc, char *argv[]) {
           break;
 
         case '3':
-          // search_contact(run);
-          // int search[50];
-          // char contact[2000];
 
-          // CBArguments args;
-          
           printf("Enter first or last name \n");
           fgets(args.search, sizeof(args.search), stdin);
           args.search[strcspn(args.search, "\n")] = '\0';
@@ -221,7 +211,6 @@ int display_all_contact(void *passed_args) {
   
   while (token != NULL) {
     if (args->line == 0){
-      // printf("%s\n", token);
       token = strtok(NULL, ",");
       continue;
     } else {
@@ -238,19 +227,10 @@ int display_all_contact(void *passed_args) {
 }
 
 int read_data_callback(char mode[], int (*callback)(void *), void *passed_args) {
-  // char buffer[2000];
   FILE *f = fopen("./contact_data/contacts.csv", mode);
   if (f == NULL ) {return 1;}
 
   CBArguments *args = (CBArguments *)passed_args;
-  // int line = 0;
-
-  // struct Argument{
-  //   int line;
-  //   char buffer[2000];
-  // };
-
-  // CBArguments arg;
   args->line = 0;
 
   int return_value;
