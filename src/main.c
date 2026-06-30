@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
   
   if (argc > 1 && strcmp(argv[1], "init") == 0) {
     init_setup();
-    return 0;
+    return EXIT_SUCCESS;
   } else {
     
     int running = 0;
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
           // read_data();
           read_data_callback("r", display_all_contact, &args);
           *run = 1;
-          return 0;
+          return EXIT_SUCCESS;
 
           break;
         case '2':
@@ -86,7 +86,15 @@ int main(int argc, char *argv[]) {
           fgets(args.search, sizeof(args.search), stdin);
           args.search[strcspn(args.search, "\n")] = '\0';
 
-          read_data_callback("r", contact_search, &args);
+          int contact = read_data_callback("r", contact_search, &args);
+          printf("%i\n", contact);
+          if (contact != 0) {
+            char answer[5];
+            printf("would your like to edit contact? (y|n): ");
+            fgets(answer, sizeof(answer), stdin);
+            answer[strcspn(answer, "\n")] = '\0';
+
+          }
 
           break;
         default:
@@ -94,7 +102,7 @@ int main(int argc, char *argv[]) {
       }
     }
     
-    return 0;
+    return EXIT_SUCCESS;
   }
 }
 
@@ -105,7 +113,7 @@ int main(int argc, char *argv[]) {
 //   // read_data();
 //   read_data_callback("r", display_all_contact);
 //   *run = 1;
-//   return 0;
+//   return EXIT_SUCCESS;
 // }
 
 int add_contact(int *run) {
@@ -148,7 +156,7 @@ int add_contact(int *run) {
     }
   }
   
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 int search_contact(int *run){
@@ -198,7 +206,7 @@ int search_contact(int *run){
 
   *run = 1;
   // return 1;
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 int contact_search(void *passed_args) {
@@ -213,14 +221,15 @@ int contact_search(void *passed_args) {
       if (strcmp(token, args->search) == 0){
         printf("Found Contact\n");
         printf("%s\n", args->contact);
-        // return line;
+        return args->line;
+
       }
     }
 
     token = strtok(NULL, ",");
   }
 
-  return 0;
+  return EXIT_FAILURE;
 }
 
 void display_actions() {
@@ -251,7 +260,7 @@ int init_setup() {
 
   fclose(f);
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 int update_data(const char *contact) {
@@ -261,7 +270,7 @@ int update_data(const char *contact) {
   fprintf(f, "\n%s", contact);
 
   fclose(f);
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 int read_data(){
@@ -299,7 +308,7 @@ int read_data(){
   
   fclose(f);
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 int display_all_contact(void *passed_args) {
@@ -322,7 +331,7 @@ int display_all_contact(void *passed_args) {
 
 
   printf("\n");
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 int read_data_callback(char mode[], int (*callback)(void *), void *passed_args) {
@@ -341,16 +350,18 @@ int read_data_callback(char mode[], int (*callback)(void *), void *passed_args) 
   // CBArguments arg;
   args->line = 0;
 
+  int return_value;
+
   while(fgets(args->buffer, sizeof(args->buffer), f)) {
     args->buffer[strcspn( args->buffer, "\n")] = '\0';
     
     
-    callback(args);
+    return_value = callback(args);
   
     args->line ++;
   }
   
   fclose(f);
 
-  return 0;
+  return return_value;
 }
