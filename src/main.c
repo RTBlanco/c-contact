@@ -106,15 +106,6 @@ int main(int argc, char *argv[]) {
   }
 }
 
-// int show_all(int *run) {
-//   printf("showing all Contacts\n");
-//   printf("First Name | Last Name | Phone number \n");
-//   printf("=======================================");
-//   // read_data();
-//   read_data_callback("r", display_all_contact);
-//   *run = 1;
-//   return EXIT_SUCCESS;
-// }
 
 int add_contact(int *run) {
   int contact_running = 0;
@@ -159,55 +150,6 @@ int add_contact(int *run) {
   return EXIT_SUCCESS;
 }
 
-int search_contact(int *run){
-  
-
-  char buffer[2000];
-  FILE *f = fopen("./contact_data/contacts.csv", "r");
-  if (f == NULL ) {return 1;}
-  
-  int line = 0;
-  char search[50];
-  char contact[sizeof(buffer)];
-
-
-  printf("Enter first or last name \n");
-
-  fgets(search, sizeof(search), stdin);
-  search[strcspn(search, "\n")] = '\0';
-
-  while(fgets(buffer, sizeof(buffer), f)) {
-    buffer[strcspn(buffer, "\n")] = '\0';
-    
-    
-    strcpy(contact, buffer);
-    char *token = strtok(buffer, ",");
-    
-    while (token != NULL) {
-      
-      if (line != 0){
-        if (strcmp(token, search) == 0){
-          printf("Found Contact\n");
-          printf("%s\n", contact);
-          // return line;
-        }
-      }
-
-      token = strtok(NULL, ",");
-    }
-
-    
-    line ++;
-
-    printf("\n");
-  }
-  
-  fclose(f);
-
-  *run = 1;
-  // return 1;
-  return EXIT_SUCCESS;
-}
 
 int contact_search(void *passed_args) {
   CBArguments *args = (CBArguments *)passed_args;
@@ -242,7 +184,6 @@ void display_actions() {
 }
 
 
-
 int init_setup() {
   printf("initializing\n");
 
@@ -270,44 +211,6 @@ int update_data(const char *contact) {
   fprintf(f, "\n%s", contact);
 
   fclose(f);
-  return EXIT_SUCCESS;
-}
-
-int read_data(){
-
-  char buffer[2000];
-  FILE *f = fopen("./contact_data/contacts.csv", "r");
-  if (f == NULL ) {return 1;}
-  
-  int line = 0;
-
-  while(fgets(buffer, sizeof(buffer), f)) {
-    buffer[strcspn(buffer, "\n")] = '\0';
-    
-    char *token = strtok(buffer, ",");
-    
-    while (token != NULL) {
-      
-      if (line == 0){
-        token = strtok(NULL, ",");
-        continue;
-      } else {
-
-        printf("%s | ", token);
-        token = strtok(NULL, ",");
-
-      }
-    }
-
-    line ++;
-
-    printf("\n");
-  
-
-  }
-  
-  fclose(f);
-
   return EXIT_SUCCESS;
 }
 
