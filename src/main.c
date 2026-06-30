@@ -14,7 +14,7 @@ Load contacts when the program starts
 */
 
 int add_contact(int *run);
-int show_all(int *run);
+// int show_all(int *run);
 void display_actions();
 void display_contact_actions();
 int search_contact(int *run);
@@ -22,8 +22,24 @@ int destroy_contact();
 int init_setup();
 int read_data();
 int update_data(const char *contact);
-int read_data_callback(char mode[], int (*callback)(char *buffer, int line));
-int display_all_contact(char *buffer, int line);
+int read_data_callback(char mode[], int (*callback)(), void *passed_args);
+int display_all_contact(void *passed_args);
+int contact_search(void *passed_args);
+
+
+typedef struct {
+  int line;
+  char first_name[50];
+  char last_name[50];
+  char phone_number[50];
+} Contact;
+
+typedef struct {
+  int line;
+  char search[50];
+  char buffer[2000];
+  char contact[2000];
+} CBArguments;
 
 
 int main(int argc, char *argv[]) {
@@ -36,6 +52,7 @@ int main(int argc, char *argv[]) {
     int running = 0;
     int *run = &running;
     char user_input[10];
+    CBArguments args;
 
     while (running == 0) {
       display_actions();
@@ -43,14 +60,34 @@ int main(int argc, char *argv[]) {
 
       switch (user_input[0]) {
         case '1':
-          show_all(run);
+
+          // CBArguments args;
+          printf("showing all Contacts\n");
+          printf("First Name | Last Name | Phone number \n");
+          printf("=======================================");
+          // read_data();
+          read_data_callback("r", display_all_contact, &args);
+          *run = 1;
+          return 0;
+
           break;
         case '2':
           add_contact(run);
           break;
 
         case '3':
-          search_contact(run);
+          // search_contact(run);
+          // int search[50];
+          // char contact[2000];
+
+          // CBArguments args;
+          
+          printf("Enter first or last name \n");
+          fgets(args.search, sizeof(args.search), stdin);
+          args.search[strcspn(args.search, "\n")] = '\0';
+
+          read_data_callback("r", contact_search, &args);
+
           break;
         default:
           break;
@@ -61,15 +98,15 @@ int main(int argc, char *argv[]) {
   }
 }
 
-int show_all(int *run) {
-  printf("showing all Contacts\n");
-  printf("First Name | Last Name | Phone number \n");
-  printf("=======================================");
-  // read_data();
-  read_data_callback("r", display_all_contact);
-  *run = 1;
-  return 0;
-}
+// int show_all(int *run) {
+//   printf("showing all Contacts\n");
+//   printf("First Name | Last Name | Phone number \n");
+//   printf("=======================================");
+//   // read_data();
+//   read_data_callback("r", display_all_contact);
+//   *run = 1;
+//   return 0;
+// }
 
 int add_contact(int *run) {
   int contact_running = 0;
@@ -122,60 +159,67 @@ int search_contact(int *run){
   if (f == NULL ) {return 1;}
   
   int line = 0;
-  int found_contact = 0;
   char search[50];
-  int show_contact = 1;
   char contact[sizeof(buffer)];
 
 
   printf("Enter first or last name \n");
-  while(found_contact == 0) {
 
-    fgets(search, sizeof(search), stdin);
-    search[strcspn(search, "\n")] = '\0';
+  fgets(search, sizeof(search), stdin);
+  search[strcspn(search, "\n")] = '\0';
 
-    while(fgets(buffer, sizeof(buffer), f)) {
-      buffer[strcspn(buffer, "\n")] = '\0';
+  while(fgets(buffer, sizeof(buffer), f)) {
+    buffer[strcspn(buffer, "\n")] = '\0';
+    
+    
+    strcpy(contact, buffer);
+    char *token = strtok(buffer, ",");
+    
+    while (token != NULL) {
       
-      
-      strcpy(contact, buffer);
-      char *token = strtok(buffer, ",");
-      
-      while (token != NULL) {
-        
-        if (line != 0){
-          if (strcmp(token, search) == 0){
-            printf("Found Contact\n");
-            printf("%s\n", contact);
-            // return line;
-            char edit_answer[5];
-
-            printf("Edit Contact ? (Y|N):");
-            fgets(edit_answer, sizeof(edit_answer), stdin);
-            edit_answer[strcspn(edit_answer, "\n")] = '\0';
-
-            // finish 
-            if (strcmp(edit_answer, "y") == 0) {
-              printf("Your going to edit %s", contact);
-            }
-          }
+      if (line != 0){
+        if (strcmp(token, search) == 0){
+          printf("Found Contact\n");
+          printf("%s\n", contact);
+          // return line;
         }
-
-        token = strtok(NULL, ",");
       }
 
-      
-      line ++;
-  
-      printf("\n");
+      token = strtok(NULL, ",");
     }
 
+    
+    line ++;
+
+    printf("\n");
   }
   
   fclose(f);
 
   *run = 1;
   // return 1;
+  return 0;
+}
+
+int contact_search(void *passed_args) {
+  CBArguments *args = (CBArguments *)passed_args;
+
+  strcpy(args->contact, args->buffer);
+  char *token = strtok(args->buffer, ",");
+  
+  while (token != NULL) {
+    
+    if (args->line != 0){
+      if (strcmp(token, args->search) == 0){
+        printf("Found Contact\n");
+        printf("%s\n", args->contact);
+        // return line;
+      }
+    }
+
+    token = strtok(NULL, ",");
+  }
+
   return 0;
 }
 
@@ -258,11 +302,13 @@ int read_data(){
   return 0;
 }
 
-int display_all_contact(char *buffer, int line) {
-  char *token = strtok(buffer, ",");
+int display_all_contact(void *passed_args) {
+  CBArguments *args = (CBArguments *)passed_args;
+
+  char *token = strtok(args->buffer, ",");
   
   while (token != NULL) {
-    if (line == 0){
+    if (args->line == 0){
       // printf("%s\n", token);
       token = strtok(NULL, ",");
       continue;
@@ -279,20 +325,29 @@ int display_all_contact(char *buffer, int line) {
   return 0;
 }
 
-int read_data_callback(char mode[], int (*callback)(char *buffer, int line)) {
-  char buffer[2000];
+int read_data_callback(char mode[], int (*callback)(void *), void *passed_args) {
+  // char buffer[2000];
   FILE *f = fopen("./contact_data/contacts.csv", mode);
   if (f == NULL ) {return 1;}
-  
-  int line = 0;
 
-  while(fgets(buffer, sizeof(buffer), f)) {
-    buffer[strcspn(buffer, "\n")] = '\0';
+  CBArguments *args = (CBArguments *)passed_args;
+  // int line = 0;
+
+  // struct Argument{
+  //   int line;
+  //   char buffer[2000];
+  // };
+
+  // CBArguments arg;
+  args->line = 0;
+
+  while(fgets(args->buffer, sizeof(args->buffer), f)) {
+    args->buffer[strcspn( args->buffer, "\n")] = '\0';
     
     
-    callback(buffer, line);
+    callback(args);
   
-    line ++;
+    args->line ++;
   }
   
   fclose(f);
