@@ -16,6 +16,8 @@ int display_all_contact(void *passed_args);
 int contact_search(void *passed_args);
 int edit_contact(void *args);
 
+#define FILE_LOCATION "./contact_data/contacts.csv"
+
 
 typedef struct {
   int line;
@@ -186,7 +188,7 @@ int init_setup() {
     printf("folder exists already\n");
   }
 
-  FILE *f = fopen("./contact_data/contacts.csv", "w");
+  FILE *f = fopen(FILE_LOCATION, "w");
   if (f == NULL ) {return 1;}
   fprintf(f, "%s", "first_name,last_name,phone_number");
 
@@ -196,7 +198,7 @@ int init_setup() {
 }
 
 int update_data(const char *contact) {
-  FILE *f = fopen("./contact_data/contacts.csv", "a");
+  FILE *f = fopen(FILE_LOCATION, "a");
   if (f == NULL ) {return 1;}
 
   fprintf(f, "\n%s", contact);
@@ -228,7 +230,7 @@ int display_all_contact(void *passed_args) {
 }
 
 int read_data_callback(char mode[], int (*callback)(void *), void *passed_args) {
-  FILE *f = fopen("./contact_data/contacts.csv", mode);
+  FILE *f = fopen(FILE_LOCATION, mode);
   if (f == NULL ) {return 1;}
 
   CBArguments *args = (CBArguments *)passed_args;
@@ -252,7 +254,7 @@ int read_data_callback(char mode[], int (*callback)(void *), void *passed_args) 
 
 int edit_contact(void *args) {
   CBArguments *cb_args = (CBArguments *)args;
-  // int sed = system("sed '2s/^[^,]*/NEW_NAME/' ./contact_data/contacts.csv"); 
+
   int running = 1;
   char answer[5];
   char sed_string[500];
@@ -274,7 +276,7 @@ int edit_contact(void *args) {
 
       strcpy(cb_args->contact_data.first_name, new_name);
 
-      snprintf(sed_string, sizeof(sed_string), "sed -i '' '%is/^[^,]*/%s/' ./contact_data/contacts.csv",cb_args->contact_data.line + 1, new_name);
+      snprintf(sed_string, sizeof(sed_string), "sed -i '' '%is/^[^,]*/%s/' %s",cb_args->contact_data.line + 1, new_name, FILE_LOCATION);
       system(sed_string);
 
       printf("%s\n", new_name);
@@ -291,7 +293,7 @@ int edit_contact(void *args) {
 
       strcpy(cb_args->contact_data.last_name, new_name);
   
-      snprintf(sed_string, sizeof(sed_string), "sed -i '' '%is/^\\([^,]*,\\)[^,]*/\\1%s/' ./contact_data/contacts.csv", cb_args->contact_data.line + 1, new_name);
+      snprintf(sed_string, sizeof(sed_string), "sed -i '' '%is/^\\([^,]*,\\)[^,]*/\\1%s/' %s", cb_args->contact_data.line + 1, new_name, FILE_LOCATION);
       system(sed_string);
   
       break;
@@ -306,7 +308,7 @@ int edit_contact(void *args) {
 
       strcpy(cb_args->contact_data.phone_number, new_phone);
   
-      snprintf(sed_string, sizeof(sed_string), "sed -i '' '%is/^\\([^,]*,[^,]*,\\).*/\\1%s/' ./contact_data/contacts.csv", cb_args->contact_data.line + 1 , new_phone);
+      snprintf(sed_string, sizeof(sed_string), "sed -i '' '%is/^\\([^,]*,[^,]*,\\).*/\\1%s/' %s", cb_args->contact_data.line + 1 , new_phone, FILE_LOCATION);
       system(sed_string);
   
       break; 
