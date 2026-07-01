@@ -14,7 +14,7 @@ int update_data(const char *contact);
 int read_data_callback(char mode[], int (*callback)(), void *passed_args);
 int display_all_contact(void *passed_args);
 int contact_search(void *passed_args);
-int edit_contact(void *args, int *run);
+int edit_contact(void *args);
 
 
 typedef struct {
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
           printf("=======================================");
           read_data_callback("r", display_all_contact, &args);
           *run = 1;
-          return EXIT_SUCCESS;
+          // return EXIT_SUCCESS;
 
           break;
         case '2':
@@ -70,18 +70,19 @@ int main(int argc, char *argv[]) {
           fgets(args.search, sizeof(args.search), stdin);
           args.search[strcspn(args.search, "\n")] = '\0';
 
-          int contact = read_data_callback("r", contact_search, &args);
-          printf("%i\n", contact);
-          if (contact != 0) {
+          if (read_data_callback("r", contact_search, &args) == EXIT_SUCCESS) {
             char answer[5];
             printf("would your like to edit contact? (y|n): ");
             fgets(answer, sizeof(answer), stdin);
             answer[strcspn(answer, "\n")] = '\0';
             if (strcmp(answer, "y") == EXIT_SUCCESS) {
-              edit_contact(&args, run);
+              edit_contact(&args);
             }
+          } else {
+            printf("Contact Not found\n");
           }
 
+          *run = 1;
           break;
         default:
           break;
@@ -149,12 +150,10 @@ int contact_search(void *passed_args) {
       if (strcmp(token, args->search) == 0){
         printf("Found Contact\n");
         printf("%s\n", args->contact);
-        /*
-          split contact by the , then save it to a Contact Struct pointer 
-        */
+        
         Contact contact_data = {args->line, strtok(args->contact,","),strtok(NULL,","), strtok(NULL,",")};
         args->contact_data = contact_data;
-        return args->line;
+        return EXIT_SUCCESS;
 
       }
     }
@@ -250,15 +249,68 @@ int read_data_callback(char mode[], int (*callback)(void *), void *passed_args) 
   return return_value;
 }
 
-int edit_contact(void *args, int *run) {
+int edit_contact(void *args) {
   CBArguments *cb_args = (CBArguments *)args;
   // int sed = system("sed '2s/^[^,]*/NEW_NAME/' ./contact_data/contacts.csv"); 
-
+  int running = 1;
+  char answer[5];
+  char sed_string[500];
   printf("1) First Name (%s)\n", cb_args->contact_data.first_name);
   printf("2) Last Name (%s)\n", cb_args->contact_data.last_name);
   printf("3) Phone Number (%s)\n", cb_args->contact_data.phone_number);
 
+  while(running) {
+    fgets(answer, sizeof(answer), stdin);
+    answer[strcspn(answer, "\n")] = '\0';
 
-  *run = 1;
+    switch (answer[0]){
+    case '1': {
+      char new_name[50];
+
+      printf("Enter new First Name: ");
+      fgets(new_name, sizeof(new_name), stdin);
+      new_name[strcspn(new_name, "\n")] = '\0';
+
+      snprintf(sed_string, sizeof(sed_string), "sed -i '' '%is/^[^,]*/%s/' ./contact_data/contacts.csv",cb_args->contact_data.line + 1, new_name);
+      // printf("%s\n", sed_string);
+      system(sed_string);
+
+      printf("%s\n", new_name);
+      break;
+    }
+
+    case '2': {
+
+      char new_name[50];
+  
+      printf("Enter new Last Name: ");
+      fgets(new_name, sizeof(new_name), stdin);
+      new_name[strcspn(new_name, "\n")] = '\0';
+  
+      snprintf(sed_string, sizeof(sed_string), "sed -i '%is/^\\([^,]*,\\)[^,]*/\\1%s/' ./contact_data/contacts.csv", cb_args->contact_data.line + 1, new_name);
+      system(sed_string);
+  
+      break;
+    }
+
+    case '3': {
+      char new_phone[50];
+  
+      printf("Enter new Phone Number: ");
+      fgets(new_phone, sizeof(new_phone), stdin);
+      new_phone[strcspn(new_phone, "\n")] = '\0';
+  
+  
+  
+      snprintf(sed_string, sizeof(sed_string), "sed -i '%is/^\\([^,]*,[^,]*,\\).*/\\1%s/' ./contact_data/contacts.csv", cb_args->contact_data.line + 1 , new_phone);
+      system(sed_string);
+  
+      break; 
+    }
+    default:
+      break;
+    }
+  }
+
   return EXIT_SUCCESS;
 }
