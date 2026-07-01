@@ -4,14 +4,6 @@
 #include <string.h>
 #include <sys/stat.h>
 
-/*
-Add a contact
-View all contacts
-Search by name
-Delete a contact
-Save contacts to a file
-Load contacts when the program starts
-*/
 
 int add_contact(int *run);
 void display_actions();
@@ -22,16 +14,18 @@ int update_data(const char *contact);
 int read_data_callback(char mode[], int (*callback)(), void *passed_args);
 int display_all_contact(void *passed_args);
 int contact_search(void *passed_args);
+int edit_contact(void *args, int *run);
 
 
 typedef struct {
   int line;
-  char first_name[50];
-  char last_name[50];
-  char phone_number[50];
+  char *first_name;
+  char *last_name;
+  char *phone_number;
 } Contact;
 
 typedef struct {
+  Contact contact_data;
   int line;
   char search[50];
   char buffer[2000];
@@ -83,7 +77,9 @@ int main(int argc, char *argv[]) {
             printf("would your like to edit contact? (y|n): ");
             fgets(answer, sizeof(answer), stdin);
             answer[strcspn(answer, "\n")] = '\0';
-
+            if (strcmp(answer, "y") == EXIT_SUCCESS) {
+              edit_contact(&args, run);
+            }
           }
 
           break;
@@ -153,6 +149,11 @@ int contact_search(void *passed_args) {
       if (strcmp(token, args->search) == 0){
         printf("Found Contact\n");
         printf("%s\n", args->contact);
+        /*
+          split contact by the , then save it to a Contact Struct pointer 
+        */
+        Contact contact_data = {args->line, strtok(args->contact,","),strtok(NULL,","), strtok(NULL,",")};
+        args->contact_data = contact_data;
         return args->line;
 
       }
@@ -247,4 +248,17 @@ int read_data_callback(char mode[], int (*callback)(void *), void *passed_args) 
   fclose(f);
 
   return return_value;
+}
+
+int edit_contact(void *args, int *run) {
+  CBArguments *cb_args = (CBArguments *)args;
+  // int sed = system("sed '2s/^[^,]*/NEW_NAME/' ./contact_data/contacts.csv"); 
+
+  printf("1) First Name (%s)\n", cb_args->contact_data.first_name);
+  printf("2) Last Name (%s)\n", cb_args->contact_data.last_name);
+  printf("3) Phone Number (%s)\n", cb_args->contact_data.phone_number);
+
+
+  *run = 1;
+  return EXIT_SUCCESS;
 }
