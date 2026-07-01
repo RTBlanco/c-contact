@@ -149,10 +149,11 @@ int contact_search(void *passed_args) {
     if (args->line != 0){
       if (strcmp(token, args->search) == 0){
         printf("Found Contact\n");
-        printf("%s\n", args->contact);
         
         Contact contact_data = {args->line, strtok(args->contact,","),strtok(NULL,","), strtok(NULL,",")};
         args->contact_data = contact_data;
+
+        printf("%s | %s | %s\n", args->contact_data.first_name, args->contact_data.last_name, args->contact_data.phone_number);
         return EXIT_SUCCESS;
 
       }
@@ -272,7 +273,6 @@ int edit_contact(void *args) {
       new_name[strcspn(new_name, "\n")] = '\0';
 
       snprintf(sed_string, sizeof(sed_string), "sed -i '' '%is/^[^,]*/%s/' ./contact_data/contacts.csv",cb_args->contact_data.line + 1, new_name);
-      // printf("%s\n", sed_string);
       system(sed_string);
 
       printf("%s\n", new_name);
@@ -299,8 +299,6 @@ int edit_contact(void *args) {
       printf("Enter new Phone Number: ");
       fgets(new_phone, sizeof(new_phone), stdin);
       new_phone[strcspn(new_phone, "\n")] = '\0';
-  
-  
   
       snprintf(sed_string, sizeof(sed_string), "sed -i '%is/^\\([^,]*,[^,]*,\\).*/\\1%s/' ./contact_data/contacts.csv", cb_args->contact_data.line + 1 , new_phone);
       system(sed_string);
