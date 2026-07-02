@@ -1,5 +1,22 @@
-All: 
-	cc -o ./bin/contact ./src/main.c && ./bin/contact
+CC = clang
+CFLAGS = 
+
+all: run
+
+helper.o: ./src/helper.c ./src/helper.h
+	$(CC) $(CFLAGS) -c $< -o ./bin/helper.o
+
+# contact.o: ./src/main.c
+# 	$(CC) $(CFLAGS) -c ./src/main.c -o ./bin/contact.o
+
+contact: ./src/main.c helper.o
+	$(CC) $(CFLAGS) -o ./bin/$@ $< ./bin/helper.o
+
+run: contact
+	./bin/contact
+
+clean:
+	rm ./bin/*.o ./bin/contact && rm -rf ./bin/contact.dSYM
 
 init:
-	cc -o ./bin/contact ./src/main.c && ./bin/contact init
+	$(CC) $(CFLAGS) -o ./bin/contact ./src/main.c ./src/helper.c && ./bin/contact init

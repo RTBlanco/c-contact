@@ -3,6 +3,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <sys/stat.h>
+#include "helper.h"
 
 
 int add_contact(int *run);
@@ -48,20 +49,31 @@ int main(int argc, char *argv[]) {
     CBArguments args;
 
     while (running == 0) {
+      hello();
       display_actions();
       fgets(user_input, sizeof(user_input), stdin);
 
       switch (user_input[0]) {
-        case '1':
+        case '1': {
 
+          char answer[5];
+          printf("\033[H\033[J");
           printf("showing all Contacts\n");
           printf("First Name | Last Name | Phone number \n");
           printf("=======================================");
           read_data_callback("r", display_all_contact, &args);
-          *run = 1;
-          // return EXIT_SUCCESS;
 
+
+          printf("Enter to continue \n");
+          fgets(answer, sizeof(answer), stdin);
+          answer[strcspn(answer, "\n")] = '\0';
+
+          // *run = 1;
+          // return EXIT_SUCCESS;
+  
           break;
+        }
+
         case '2':
           add_contact(run);
           break;
